@@ -10,6 +10,8 @@
 library(data.table)
 library(tidyverse)
 library(spdep)
+library(sf)
+library(spatialreg)
 
 # Functions -----------------------------
 
@@ -34,8 +36,23 @@ map_files <- map_files[map_files$region != "Outside Australia", ]
 
 # Create the queens matrix
 nb <- poly2nb(map_files, queen = TRUE)
-nbw <- nb2listw(nb, style = "W", zero.policy = TRUE)
+nbw <- nb2listw(nb, style = "B", zero.policy = TRUE)
 
+# Attach the neighours to the data
+nb |> 
+  nb2listw(style="W", zero.policy=TRUE) |> 
+  spweights.constants(zero.policy=TRUE) |> 
+  data.frame() |> 
+  subset(select=c(n, S0, S1, S2))
+
+### define the formula -----------------
+
+form <- formula(mac_diff_delta ~ hdi_delta)
+
+## Estimate the Durbin model -----------
+
+eigs <- eigenw(nbw)
+errorsarlm(form, data )
 
 
 # Spatial analysis ---------------------
