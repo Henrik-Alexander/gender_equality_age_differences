@@ -100,10 +100,14 @@ dev <- left_join(dev, macs, by = c("region", "country", "year"))
 dev |> group_by(country, year) |> summarise(miss = mean(is.na(mac_female))) |> pivot_wider(names_from = "year", values_from = miss)
 
 # Estimate the mean age gap
-dev$mac_diff <- dev$mac_male - dev$mac_femalehttp://127.0.0.1:20707/graphics/plot_zoom_png?width=976&height=900
+dev$mac_diff <- dev$mac_male - dev$mac_female
 
 # Remove missing observation
 dev <- dev[!is.na(dev$mac_diff) & !is.na(dev$gdi), ]
+
+
+# Save the data
+save(dev, file = "data/analysis_data.Rda")
 
 # Remove Ciudad Autonoma de Melilla
 dev <- dev[dev$region != "Ciudad Autonoma de Melilla", ]
@@ -124,7 +128,6 @@ basic_relationship <- ggplot(dev, aes(x=gdi, y=mac_diff, fill=country)) +
 basic_relationship +
   geom_smooth(method="lm", se=F, formula="y~x", aes(colour=country)) +
   scale_colour_viridis_d(name="Country", option = "viridis")
-  
 
 
 ### Estimate the models ------------------------------
